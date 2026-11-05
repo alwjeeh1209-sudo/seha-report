@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير إجازة مرضية - وزارة الصحة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f3f4f6; }
+        iframe#netlify-commendation { display: none !important; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: #ffffff; padding: 0 !important; }
+            .report-container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-6 px-2 flex flex-col items-center">
+
+    <!-- لوحة التحكم الخاصة بك (تختفي تماماً عند الطباعة أو الحفظ كـ PDF) -->
+    <div class="no-print bg-white p-5 rounded-2xl shadow-xl w-full max-w-2xl mb-6 border border-gray-200">
+        <h2 class="text-lg font-bold text-gray-800 mb-3 text-center border-b pb-2">لوحة التحكم السريعة (لتعديل بيانات التقرير)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">رمز الإجازة (Leave ID)</label>
+                <input type="text" id="inputLeaveId" value="GSL26073438055" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">مدة الإجازة</label>
+                <input type="text" id="inputDuration" value="1 day (01-11-2026 to 01-11-2026) / (21-05-1448 إلى 21-05-1448)" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">تاريخ الدخول</label>
+                <input type="text" id="inputAdmission" value="01-11-2026 / 21-05-1448" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">تاريخ الخروج</label>
+                <input type="text" id="inputDischarge" value="01-11-2026 / 21-05-1448" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">تاريخ إصدار التقرير</label>
+                <input type="text" id="inputIssueDate" value="01-11-2026" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">اسم المريض</label>
+                <input type="text" id="inputName" value="أريام فيصل الدحماني / ARYAM FAISAL AL-DAJANI" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">رقم الهوية / الإقامة</label>
+                <input type="text" id="inputIdentity" value="1137656391" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">الجنسية</label>
+                <input type="text" id="inputNationality" value="السعودية / Saudi Arabia" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">جهة العمل</label>
+                <input type="text" id="inputEmployer" value="الى من يهمه الأمر" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">اسم الممارس</label>
+                <input type="text" id="inputDoctor" value="احمد العنزي / AHMED AL-ANZI" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block font-semibold text-gray-700 mb-1">المسمى الوظيفي</label>
+                <input type="text" id="inputPosition" value="استشاري / Consultant" class="w-full p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        <button onclick="updateReport()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow">
+            تحديث التقرير والباركود فوراً
+        </button>
+    </div>
+
+    <!-- تقرير إجازة مرضية الرسمي (يظهر للعميل نظيفاً وبدون لوحة تحكم عند الطباعة أو المشاركة) -->
+    <div id="reportCard" class="report-container bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 border border-gray-200 text-gray-800 relative">
+        
+        <!-- الترويسة -->
+        <div class="flex justify-between items-start border-b pb-4 mb-4 relative">
+            <!-- اليمين: شعار صحة -->
+            <div class="flex items-center space-x-1 space-x-reverse">
+                <div class="leading-tight text-right">
+                    <span class="font-black text-gray-900 text-base block">صحة</span>
+                    <span class="text-[10px] text-gray-500 block">Seha</span>
+                </div>
+                <div class="flex flex-col space-y-0.5 mr-1">
+                    <div class="w-5 h-0.5 bg-blue-400"></div>
+                    <div class="w-6 h-0.5 bg-blue-500"></div>
+                    <div class="w-7 h-0.5 bg-blue-600"></div>
+                    <div class="w-8 h-0.5 bg-blue-700"></div>
+                    <div class="w-9 h-0.5 bg-blue-800"></div>
+                    <div class="w-10 h-0.5 bg-blue-900"></div>
+                </div>
+            </div>
+
+            <!-- الوسط: شعار المملكة العربية السعودية -->
+            <div class="text-center">
+                <h1 class="text-sm font-bold text-gray-800 tracking-wider font-serif">المملكة العربية السعودية</h1>
+                <p class="text-[9px] text-gray-500 tracking-tight">Kingdom of Saudi Arabia</p>
+            </div>
+
+            <!-- اليسار: الزخرفة الهندسية -->
+            <div class="w-16 h-10 relative opacity-40">
+                <svg viewBox="0 0 100 60" class="w-full h-full stroke-blue-300 fill-none">
+                    <path d="M10,50 L40,10 L70,40 L90,20" stroke-width="1.5"/>
+                    <path d="M40,10 L60,50 L90,20" stroke-width="1"/>
+                    <path d="M10,50 L60,50" stroke-width="1"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- عنوان التقرير -->
+        <div class="text-center mb-6">
+            <h2 class="text-base font-bold text-blue-900">تقرير إجازة مرضية</h2>
+            <p class="text-xs text-gray-500">Sick Leave Report</p>
+        </div>
+
+        <!-- جدول البيانات الرسمي -->
+        <div class="overflow-x-auto mb-6">
+            <table class="w-full border-collapse border border-gray-300 text-xs" style="direction: rtl;">
+                <thead>
+                    <tr class="bg-blue-900 text-white">
+                        <th class="border border-blue-800 p-2 text-right font-semibold">رمز الإجازة</th>
+                        <th class="border border-blue-800 p-2 text-center font-semibold" colspan="2" id="displayLeaveId">GSL26073438055</th>
+                        <th class="border border-blue-800 p-2 text-left font-semibold">Leave ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right font-medium bg-blue-900 text-white">مدة الإجازة</td>
+                        <td class="border border-gray-300 p-2 text-center bg-blue-900 text-white font-ltr" colspan="2" id="displayDuration" style="direction: ltr; unicode-bidi: embed;">1 day (01-11-2026 to 01-11-2026) / (21-05-1448 إلى 21-05-1448)</td>
+                        <td class="border border-gray-300 p-2 text-left font-medium bg-blue-900 text-white">Leave Duration</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">تاريخ الدخول</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayAdmission">01-11-2026 / 21-05-1448</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Admission Date</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">تاريخ الخروج</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayDischarge">01-11-2026 / 21-05-1448</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Discharge Date</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">تاريخ إصدار التقرير</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayIssueDate">01-11-2026</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Issue Date</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">الاسم</td>
+                        <td class="border border-gray-300 p-2 text-center font-bold" colspan="2" id="displayName">أريام فيصل الدحماني / ARYAM FAISAL AL-DAJANI</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Name</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">رقم الهوية / الإقامة</td>
+                        <td class="border border-gray-300 p-2 text-center font-mono" colspan="2" id="displayIdentity">1137656391</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">National ID / Iqama</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">الجنسية</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayNationality">السعودية / Saudi Arabia</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Nationality</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">جهة العمل</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayEmployer">الى من يهمه الأمر</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Employer</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">اسم الممارس</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayDoctor">احمد العنزي / AHMED AL-ANZI</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Practitioner Name</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-300 p-2 text-right text-gray-600 font-medium">المسمى الوظيفي</td>
+                        <td class="border border-gray-300 p-2 text-center" colspan="2" id="displayPosition">استشاري / Consultant</td>
+                        <td class="border border-gray-300 p-2 text-left text-gray-600 font-medium">Position</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- أسفل التقرير: الباركود والرابط -->
+        <div class="grid grid-cols-2 gap-4 items-center pt-2 border-t border-gray-200">
+            <div class="flex flex-col items-start space-y-1">
+                <a id="qrLink" href="#" target="_blank" class="block cursor-pointer p-1 bg-white border border-gray-200 rounded hover:opacity-80 transition">
+                    <div id="qrcode"></div>
+                </a>
+                <p class="text-[10px] text-gray-600 font-semibold text-right">للتحقق من بيانات التقرير يرجى التأكد من زيارة موقع منصة صحة</p>
+                <p class="text-[9px] text-gray-400 text-right">الرسمي</p>
+                <a id="textLink" href="#" target="_blank" class="text-[9px] text-blue-600 underline block cursor-pointer">www.seha.sa/#/inquiries/silenquiry</a>
+            </div>
+
+            <div class="flex flex-col items-end text-left space-y-1">
+                <div class="flex items-center space-x-1 space-x-reverse">
+                    <span class="text-emerald-700 font-bold text-sm">وزارة الصحة</span>
+                    <div class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs">🏥</div>
+                </div>
+                <p class="text-[10px] font-bold text-gray-800">مستشفى شقراء العام</p>
+                <p class="text-[9px] text-gray-500">Shaqra General Hospital</p>
+                <div class="mt-2 text-[9px] text-gray-400 border-t pt-1 w-full text-left">
+                    المركز الوطني للمعلومات الصحية<br>NATIONAL HEALTH INFORMATION CENTER
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-2 border-t text-[10px] text-gray-500 flex justify-between">
+            <span>9:14 AM</span>
+            <span>Sunday, 1 November 2026</span>
+        </div>
+
+        <div class="mt-6 no-print flex gap-2">
+            <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow">
+                طباعة التقرير الرسمي / حفظ كـ PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const currentUrl = window.location.href;
+
+        function generateQR(url) {
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: url,
+                width: 90,
+                height: 90,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            document.getElementById("qrLink").href = url;
+            document.getElementById("textLink").href = url;
+        }
+
+        function updateReport() {
+            document.getElementById("displayLeaveId").innerText = document.getElementById("inputLeaveId").value;
+            document.getElementById("displayDuration").innerText = document.getElementById("inputDuration").value;
+            document.getElementById("displayAdmission").innerText = document.getElementById("inputAdmission").value;
+            document.getElementById("displayDischarge").innerText = document.getElementById("inputDischarge").value;
+            document.getElementById("displayIssueDate").innerText = document.getElementById("inputIssueDate").value;
+            document.getElementById("displayName").innerText = document.getElementById("inputName").value;
+            document.getElementById("displayIdentity").innerText = document.getElementById("inputIdentity").value;
+            document.getElementById("displayNationality").innerText = document.getElementById("inputNationality").value;
+            document.getElementById("displayEmployer").innerText = document.getElementById("inputEmployer").value;
+            document.getElementById("displayDoctor").innerText = document.getElementById("inputDoctor").value;
+            document.getElementById("displayPosition").innerText = document.getElementById("inputPosition").value;
+            
+            generateQR(currentUrl);
+        }
+
+        // توليد الباركود عند التحميل لأول مرة
+        generateQR(currentUrl);
+    </script>
+</body>
+</html>
